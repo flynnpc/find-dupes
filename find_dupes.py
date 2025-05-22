@@ -6,13 +6,6 @@ import os
 import os
 import hashlib
 
-def main():
-    # Your code here
-    pass
-
-if __name__ == "__main__":
-    main()
-
 
 def move_file(source, destination):
     """
@@ -72,3 +65,10 @@ for file1, file2 in duplicate_files:
 #         print("No duplicate files found in the directory.")
 # else:
 #     print("Invalid directory path.")
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()
