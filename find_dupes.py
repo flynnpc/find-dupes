@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import shutil
-import os
-import os
 import hashlib
+import os
+import shutil
 
 
 def move_file(source, destination):
@@ -13,7 +12,8 @@ def move_file(source, destination):
 
     Args:
     source (str): The path to the source file.
-    destination (str): The path to the destination, can be a directory or a new file path.
+    destination (str): The path to the destination,
+    can be a directory or a new file path.
     """
     try:
         shutil.move(source, destination)
@@ -31,8 +31,6 @@ def move_file(source, destination):
     move_file(source_file, destination_path)
 
 
-
-
 def find_duplicates(directory):
     file_hashes = {}
     duplicates = []
@@ -41,7 +39,7 @@ def find_duplicates(directory):
         file_path = os.path.join(directory, filename)
 
     if os.path.isfile(file_path):
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             file_content = file.read()
             file_hash = hashlib.md5(file_content).hexdigest()
 
@@ -50,6 +48,7 @@ def find_duplicates(directory):
     else:
         file_hashes[file_hash] = file_path
         return duplicates
+
 
 if __name__ == "__main__":
     directory_to_check = input("Enter the directory path to check for duplicates: ")
@@ -66,9 +65,11 @@ for file1, file2 in duplicate_files:
 # else:
 #     print("Invalid directory path.")
 
+
 def main():
     # Your code here
     pass
+
 
 if __name__ == "__main__":
     main()
