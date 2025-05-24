@@ -51,9 +51,7 @@ def find_duplicates(directory):
 
 
 if __name__ == "__main__":
-    directory_to_check = input(
-        "Enter the directory path to check for duplicates: "
-    )
+    directory_to_check = input("Enter the directory path to check for duplicates: ")
 
 if os.path.isdir(directory_to_check):
     duplicate_files = find_duplicates(directory_to_check)
