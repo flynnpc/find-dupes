@@ -29,14 +29,15 @@ def hash_files(directory):
     file_hashes = {}
 
     for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
+        if not filename.endswith(".zip"):
+            file_path = os.path.join(directory, filename)
 
-    if os.path.isfile(file_path):
-        with open(file_path, "rb") as file:
-            file_content = file.read()
-            file_hash = hashlib.md5(file_content).hexdigest()
+            if os.path.isfile(file_path):
+                with open(file_path, "rb") as file:
+                    file_content = file.read()
+                    file_hash = hashlib.md5(file_content).hexdigest()
 
-    file_hashes[file_hash] = file_path
+                    file_hashes[file_hash] = file_path
 
     return file_hashes
 
@@ -55,7 +56,7 @@ def find_unique_file_paths(source_hashes, directory_to_check_hashes):
     unique_files = []
 
     for hash_value, file_path in directory_to_check_hashes.items():
-        if hash_value in source_hashes:
+        if hash_value not in source_hashes:
             unique_files.append(file_path)
 
     return unique_files
@@ -103,22 +104,24 @@ def main():
     source_hashes = []
     if are_there_zips(source_directory):
         extract_zip_files(source_directory)
-        source_hashes = hash_files(source_directory)
-    else:
-        source_hashes = hash_files(source_directory)
+
+    source_hashes = hash_files(source_directory)
+    print(source_hashes)
 
     directory_to_check_hashes = []
     if are_there_zips(directory_to_check):
         extract_zip_files(directory_to_check)
-        directory_to_check_hashes = hash_files(directory_to_check)
-    else:
-        directory_to_check_hashes = hash_files(directory_to_check)
+
+    directory_to_check_hashes = hash_files(directory_to_check)
+    print(directory_to_check_hashes)
 
     unique_file_paths = find_unique_file_paths(source_hashes, directory_to_check_hashes)
 
     if unique_file_paths:
-        for file_path in unique_file_paths:
-            move_file(file_path, os.path.join(current_directory, "unique_files"))
+        with open("unique_files_found.txt", "w") as file:
+            for file_path in unique_file_paths:
+                move_file(file_path, os.path.join(current_directory, "unique_files"))
+                file.write(file_path + "\n")
 
 
 if __name__ == "__main__":
