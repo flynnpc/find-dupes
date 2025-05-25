@@ -4,6 +4,7 @@
 import hashlib
 import os
 import shutil
+import zipfile
 
 
 def move_file(source, destination):
@@ -23,52 +24,104 @@ def move_file(source, destination):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-    # Example usage:
-    source_file = "path/to/your/source/file.txt"
-    destination_path = "path/to/your/destination/directory/"
-    # or "path/to/new/file/path.txt" to rename while moving
 
-    move_file(source_file, destination_path)
-
-
-def find_duplicates(directory):
+def hash_files(directory):
     file_hashes = {}
-    duplicates = []
 
     for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
+        if not filename.endswith(".zip"):
+            file_path = os.path.join(directory, filename)
 
-    if os.path.isfile(file_path):
-        with open(file_path, "rb") as file:
-            file_content = file.read()
-            file_hash = hashlib.md5(file_content).hexdigest()
+            if os.path.isfile(file_path):
+                with open(file_path, "rb") as file:
+                    file_content = file.read()
+                    file_hash = hashlib.md5(file_content).hexdigest()
 
-    if file_hash in file_hashes:
-        duplicates.append((file_hashes[file_hash], file_path))
-    else:
-        file_hashes[file_hash] = file_path
-        return duplicates
+                    file_hashes[file_hash] = file_path
+
+    return file_hashes
 
 
-if __name__ == "__main__":
-    directory_to_check = input("Enter the directory path to check for duplicates: ")
+def find_unique_file_paths(source_hashes, directory_to_check_hashes):
+    """
+    Find unique file paths between two directories based on their hashes.
 
-if os.path.isdir(directory_to_check):
-    duplicate_files = find_duplicates(directory_to_check)
+    Args:
+    source_hashes (dict): A dictionary of file hashes from the source directory.
+    directory_to_check_hashes (dict): A dictionary of file hashes from the directory to check.
 
-if duplicate_files:
-    print("Duplicate files found:")
-for file1, file2 in duplicate_files:
-    print(f" - {file1} and {file2}")
-#     else:
-#         print("No duplicate files found in the directory.")
-# else:
-#     print("Invalid directory path.")
+    Returns:
+    list: A list of paths of unique files.
+    """
+    unique_files = []
+
+    for hash_value, file_path in directory_to_check_hashes.items():
+        if hash_value not in source_hashes:
+            unique_files.append(file_path)
+
+    return unique_files
+
+
+def are_there_zips(directory):
+    """
+    Check if there are any zip files in the given directory.
+
+    Args:
+    directory (str): The path to the directory to check.
+
+    Returns:
+    bool: True if there are zip files, False otherwise.
+    """
+    for filename in os.listdir(directory):
+        if filename.endswith(".zip"):
+            return True
+    return False
+
+
+def extract_zip_files(directory):
+    """
+    Extract all zip files in the given directory.
+
+    Args:
+    directory (str): The path to the directory containing zip files.
+    """
+    for filename in os.listdir(directory):
+        if filename.endswith(".zip"):
+            file_path = os.path.join(directory, filename)
+            with zipfile.ZipFile(file_path, "r") as zip_ref:
+                zip_ref.extractall(directory)
 
 
 def main():
-    # Your code here
-    pass
+    source_directory = input("Enter the source directory path: ")
+    directory_to_check = input("Enter the directory path to check for duplicates: ")
+
+    current_directory = os.path.dirname(os.path.realpath(__file__))
+
+    # Create a directory to store unique files
+    os.makedirs(os.path.join(current_directory, "unique_files"), exist_ok=True)
+
+    source_hashes = []
+    if are_there_zips(source_directory):
+        extract_zip_files(source_directory)
+
+    source_hashes = hash_files(source_directory)
+    print(source_hashes)
+
+    directory_to_check_hashes = []
+    if are_there_zips(directory_to_check):
+        extract_zip_files(directory_to_check)
+
+    directory_to_check_hashes = hash_files(directory_to_check)
+    print(directory_to_check_hashes)
+
+    unique_file_paths = find_unique_file_paths(source_hashes, directory_to_check_hashes)
+
+    if unique_file_paths:
+        with open("unique_files_found.txt", "w") as file:
+            for file_path in unique_file_paths:
+                move_file(file_path, os.path.join(current_directory, "unique_files"))
+                file.write(file_path + "\n")
 
 
 if __name__ == "__main__":
