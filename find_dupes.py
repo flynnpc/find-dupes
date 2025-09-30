@@ -3,88 +3,86 @@
 
 import hashlib
 import os
-import shutil
+
+# Constants
+IMAGE_FILE_TYPES = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".tiff",
+    ".svg",
+    ".webp",
+    ".heic",
+    "heif",
+    ".raw",
+    ".nef",
+)
 
 
-def move_file(source, destination):
+def add_to_image_hashes(file_path, image_hashes={}):
     """
-    Moves a file from the source path to the destination path.
+    Generate an MD5 hash for a file. and check if it's in the image hashes dictionary.
+    If it is, update the list of paths for that hash. If not, add a new entry with the hash and the file path.
 
     Args:
-    source (str): The path to the source file.
-    destination (str): The path to the destination,
-    can be a directory or a new file path.
-    """
-    try:
-        shutil.move(source, destination)
-        print(f"File '{source}' moved successfully to '{destination}'.")
-    except FileNotFoundError:
-        print(f"Error: File '{source}' not found.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-def hash_files(directory):
-    file_hashes = {}
-
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-
-        if os.path.isfile(file_path):
-            with open(file_path, "rb") as file:
-                file_content = file.read()
-                file_hash = hashlib.md5(file_content).hexdigest()
-
-                file_hashes[file_hash] = file_path
-
-    return file_hashes
-
-
-def find_unique_file_paths(source_hashes, directory_to_check_hashes):
-    """
-    Find unique file paths between two directories based on their hashes.
-
-    Args:
-    source_hashes (dict): A dictionary of file hashes from the source directory.
-    directory_to_check_hashes (dict): A dictionary of file hashes from the directory to check.
+    file_path (str): The path to the file.
+    image_hashes (dict): A dictionary to store file hashes and their corresponding paths.
 
     Returns:
-    list: A list of paths of unique files.
+    dict: Updated dictionary of file hashes and their corresponding paths.
     """
-    unique_files = []
 
-    for hash_value, file_path in directory_to_check_hashes.items():
-        if hash_value not in source_hashes:
-            unique_files.append(file_path)
+    with open(file_path, "rb") as file:
+        file_content = file.read()
+        hasher = hashlib.md5()
+        hasher.update(file_content)
+        image_hash = hasher.hexdigest()
 
-    return unique_files
+        if image_hash in image_hashes:
+            image_hashes[image_hash].append(file_path)
+        else:
+            image_hashes[image_hash] = [file_path]
+
+    return image_hashes
+
+
+def build_image_hashes(directory, image_hashes={}):
+    """
+    Traverse a directory and build a dictionary of image file hashes and their corresponding paths.
+
+    Args:
+    directory (str): The path to the directory to traverse.
+    image_hashes (dict): A dictionary to store file hashes and their corresponding paths.
+
+    Returns:
+    dict: Updated dictionary of file hashes and their corresponding paths.
+    """
+
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            if os.path.isfile(file_path) and file_path.lower().endswith(
+                IMAGE_FILE_TYPES
+            ):
+                image_hashes = add_to_image_hashes(file_path, image_hashes)
+
+    return image_hashes
 
 
 def main():
-    target_directory = input("Enter the source directory path: ")
     directory_to_check = input("Enter the directory path to check for duplicates: ")
 
-    current_directory = os.path.dirname(os.path.realpath(__file__))
+    image_hashes = build_image_hashes(directory_to_check)
 
-    # Create a directory to store unique files
-    os.makedirs(os.path.join(current_directory, "unique_files"), exist_ok=True)
-
-    source_hashes = []
-
-    source_hashes = hash_files(target_directory)
-    print(source_hashes)
-
-    directory_to_check_hashes = []
-    directory_to_check_hashes = hash_files(directory_to_check)
-    print(directory_to_check_hashes)
-
-    unique_file_paths = find_unique_file_paths(source_hashes, directory_to_check_hashes)
-
-    if unique_file_paths:
-        with open("unique_files_found.txt", "w") as file:
-            for file_path in unique_file_paths:
-                move_file(file_path, os.path.join(current_directory, "unique_files"))
-                file.write(file_path + "\n")
+    with open("image_hashes.txt", "w") as file:
+        for hash_value, paths in image_hashes.items():
+            if len(paths) > 1:
+                file.write(f"{hash_value}:\n")
+                for image_path in paths:
+                    file.write(f"  {image_path}\n")
+                file.write("\n")
 
 
 if __name__ == "__main__":
