@@ -119,3 +119,6 @@ cython_debug/
 
 #MacOS
 .DS_Store
+
+#Output File
+image_hashes.txt
