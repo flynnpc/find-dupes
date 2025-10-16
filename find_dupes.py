@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
-from utils.hash_helpers import build_image_hashes
+from utils.hash_helpers import build_media_hashes
 
 
 def main():
     directory_to_check = input("Enter the directory path to check for duplicates: ")
 
-    image_hashes = build_image_hashes(directory_to_check)
+    image_hashes = build_media_hashes(directory_to_check)
 
     with open("image_hashes.txt", "w") as file:
         for hash_value, paths in image_hashes.items():
