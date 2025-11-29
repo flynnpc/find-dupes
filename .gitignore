@@ -28,10 +28,10 @@ share/python-wheels/
 MANIFEST
 
 # Virtual environments
-venv/
+venv3.14/
 ENV/
 env/
-.venv/
+.venv3.14/
 .ENV/
 .env/
 
@@ -117,8 +117,12 @@ cython_debug/
 # VS Code
 .vscode/
 
-#MacOS
+# MacOS
 .DS_Store
 
-#Output File
+# Output Files
 image_hashes.txt
+test_paths.txt
+remaining_file_paths.txt
+error_log.txt
+metadata.txt

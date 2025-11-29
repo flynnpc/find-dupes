@@ -1,3 +1,4 @@
+# list of all suported media file types for creating hash library
 MEDIA_FILE_TYPES: list[str] = (
     ".jpg",
     ".jpeg",
@@ -19,3 +20,9 @@ MEDIA_FILE_TYPES: list[str] = (
     ".flv",
     ".m4v",
 )
+
+# List of Metadata tags used to extract CreateDate from media files
+CREATE_DATE_METADATA_TAGS: list[str] = {
+    "EXIF:CreateDate",
+    "QuickTime:CreateDate",
+}

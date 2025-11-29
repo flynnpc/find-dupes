@@ -28,7 +28,7 @@ def add_to_media_hashes(
         if image_hash in image_hashes:
             image_hashes[image_hash].add(file_path)
         else:
-            image_hashes[image_hash] = set(file_path)
+            image_hashes[image_hash] = set([file_path])
 
     return image_hashes
 
