@@ -4,7 +4,9 @@ import os
 from constants import MEDIA_FILE_TYPES
 
 
-def add_to_image_hashes(file_path, image_hashes={}):
+def add_to_media_hashes(
+    file_path: str, image_hashes: dict[str, set[str]] = {}
+) -> dict[str, set[str]]:
     """
     Generate an MD5 hash for a file. and check if it's in the image hashes dictionary.
     If it is, update the list of paths for that hash. If not, add a new entry with the hash and the file path.
@@ -24,14 +26,16 @@ def add_to_image_hashes(file_path, image_hashes={}):
         image_hash = hasher.hexdigest()
 
         if image_hash in image_hashes:
-            image_hashes[image_hash].append(file_path)
+            image_hashes[image_hash].add(file_path)
         else:
-            image_hashes[image_hash] = [file_path]
+            image_hashes[image_hash] = set(file_path)
 
     return image_hashes
 
 
-def build_image_hashes(directory, image_hashes={}):
+def build_media_hashes(
+    directory, image_hashes: dict[str, set[str]] = {}
+) -> dict[str, set[str]]:
     """
     Traverse a directory and build a dictionary of image file hashes and their corresponding paths.
 
@@ -49,6 +53,6 @@ def build_image_hashes(directory, image_hashes={}):
             if os.path.isfile(file_path) and file_path.lower().endswith(
                 MEDIA_FILE_TYPES
             ):
-                image_hashes = add_to_image_hashes(file_path, image_hashes)
+                image_hashes = add_to_media_hashes(file_path, image_hashes)
 
     return image_hashes
