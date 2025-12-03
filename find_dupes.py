@@ -6,7 +6,7 @@ import sys
 
 from constants import CREATE_DATE_METADATA_TAGS
 from utils.hash_helpers import build_media_hashes
-from utils.organizer_helpers import walk_for_create_date_tags
+from utils.organizer_helpers import walk_and_create_date_tags
 from utils.pruning import prune_media_directories
 
 
@@ -21,13 +21,13 @@ def main():
     if tool_name == "find_dupes":
         image_hashes = build_media_hashes(directory_to_check)
 
-        with open("image_hashes.txt", "w") as file:
+        with open("image_hashes.txt", "w") as metadata:
             for hash_value, path in image_hashes.items():
                 if len(path) > 1:
-                    file.write(f"{hash_value}:\n")
+                    metadata.write(f"{hash_value}:\n")
                     for image_path in path:
-                        file.write(f"  {image_path}\n")
-                    file.write("\n")
+                        metadata.write(f"  {image_path}\n")
+                    metadata.write("\n")
 
     if tool_name == "prune_media":
         # ToDo - This is hard coded to a 0, but will be the input from a dropdowns of
@@ -38,27 +38,23 @@ def main():
 
         if pruned_paths is None:
             return
-        with open("remaining_file_paths.txt", "w") as file:
+        with open("remaining_file_paths.txt", "w") as metadata:
             for hash_value, path in pruned_paths.items():
-                file.write(f"{hash_value}: {path}\n")
-                file.write("\n")
+                metadata.write(f"{hash_value}: {path}\n")
+                metadata.write("\n")
 
     if tool_name == "organize":
         with open("metadata.txt", "w") as file:
-            metadata = walk_for_create_date_tags(directory_to_check[0])
+            files_metadata = walk_and_create_date_tags(directory_to_check[0])
 
-            for metadatum in metadata:
-                for key in CREATE_DATE_METADATA_TAGS:
-                    if key in metadatum:
+            for metadata in files_metadata:
+                for tag in CREATE_DATE_METADATA_TAGS:
+                    if tag in metadata:
                         file.write(
-                            f"{15*'*'}-File: {metadatum['SourceFile']}-{15*'*'}\n"
+                            f"{15*'*'}-File: {metadata['SourceFile']}-{15*'*'}\n"
                         )
-                        file.write(f"{key}: {metadatum[key]}\n")
-
-            # create_date = list(d)
-            # if create_date == "CreateDate":
-            # file.write(f"{15*"*"}-File: {file_path}-{15*"*"}\n")
-            # file.write(f"{pprint.pformat(d)}\n")
+                        file.write(f"{tag}: {metadata[tag]}\n")
+                file.write("\n")
 
 
 if __name__ == "__main__":
