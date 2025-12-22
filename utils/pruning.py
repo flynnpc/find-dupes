@@ -71,7 +71,7 @@ def prune_media_directories(
         None
     """
     if not directories_to_check:
-        no_directories_to_check(directories_to_check)
+        no_directories_to_check()
         return
 
     for dir_path in directories_to_check:

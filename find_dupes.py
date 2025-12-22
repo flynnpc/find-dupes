@@ -3,6 +3,7 @@
 
 
 import sys
+from datetime import datetime
 
 from constants import CREATE_DATE_METADATA_TAGS
 from utils.hash_helpers import build_media_hashes
@@ -54,6 +55,16 @@ def main():
                             f"{15*'*'}-File: {metadata['SourceFile']}-{15*'*'}\n"
                         )
                         file.write(f"{tag}: {metadata[tag]}\n")
+                        file.write(
+                            f"{datetime.strptime(metadata[tag], '%Y:%m:%d %H:%M:%S').year}\n"
+                        )
+                        print(f"Year - {metadata[tag].split(' ')[0].split(':')[0]}")
+                        print(f"Month - {metadata[tag].split(' ')[0].split(':')[1]}")
+                        print(f"Day - {metadata[tag].split(' ')[0].split(':')[2]}")
+                        print(f"Hour - {metadata[tag].split(' ')[1].split(':')[0]}")
+                        print(f"Minute - {metadata[tag].split(' ')[1].split(':')[1]}")
+                        print(f"Second - {metadata[tag].split(' ')[1].split(':')[2]}")
+
                 file.write("\n")
 
 
