@@ -23,6 +23,6 @@ MEDIA_FILE_TYPES: list[str] = (
 
 # List of Metadata tags used to extract CreateDate from media files
 CREATE_DATE_METADATA_TAGS: list[str] = {
-    "EXIF:CreateDate",
     "QuickTime:CreateDate",
+    "EXIF:DateTimeOriginal",
 }
