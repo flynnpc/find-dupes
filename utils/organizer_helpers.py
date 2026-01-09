@@ -1,50 +1,66 @@
 import os
-from pprint import pprint
+import subprocess
 
-import exiftool
+from utils.error_handling import exiftool_organize_error
 
-from utils.error_handling import exiftool_read_error, metadata_read_file_is_not_file
+testing_source = "/Users/paulflynn/Dev/test_data/source"
+testing_target = "/test/"
 
-exiftool_tags = ["CreateDate", "DateTimeOriginal"]
-# -G1 groups tags by their Groups, i.e. QuickTime, EXIF, etc.
-# -a allows duplicate tags to be extracted
-exiftool_params = [
-    "-d %Y-%m-%d_%H:%M:%S",
-    "-G1",
-    "-a",
+EXIFTOOL_TEST_CMD = "-testname<"
+EXIFTOOL_DIRECTORY_CMD = "-filename<"
+
+EXIFTOOL_TAGS = ["quicktime:createdate", "exif:datetimeoriginal"]
+
+EXIFTOOL_DATE_FILENAME_FMT = "%Y-%m-%d_%H:%M:%S%%c.%%e"
+
+
+EXIFTOOL_PARAMS = [
+    "-r",  # Recursive
+    "-d",  # Use date format
 ]
 
 
-def walk_and_create_date_tags(directory: str) -> list[dict[str, str]]:
-    with exiftool.ExifToolHelper() as et:
+def rename_and_move_media_files(
+    target_path: str, file_paths_to_process: list[str], test=False
+):
+    """
+    needs description
 
-        files_metadata = []
+    Args:
+        target_path (str:):
+        file_paths_to_process list(str):
 
-        media_files = os.walk(directory)
-        file_paths_to_process = []
+    Returns:
+        None
+    """
+    params = " ".join(EXIFTOOL_PARAMS)
 
-        for root, _, files in media_files:
-            for filename in files:
-                file_path = os.path.join(root, filename)
+    output_path = os.path.join(target_path, f"%Y/{EXIFTOOL_DATE_FILENAME_FMT}")
 
-                if os.path.isfile(file_path):
-                    file_paths_to_process.append(file_path)
-                else:
-                    metadata_read_file_is_not_file(file_path)
-                    continue
-
-        # Split into two functions - get_files_tags()
-        try:
-            all_files_metadata = et.get_tags(
-                file_paths_to_process, exiftool_tags, exiftool_params
+    if test:
+        tag_command: str = " ".join(
+            map(
+                lambda tag: f"{EXIFTOOL_TEST_CMD}{tag}",
+                EXIFTOOL_TAGS,
             )
+        )
 
-            pprint(all_files_metadata)
+    else:
+        tag_command: str = " ".join(
+            map(
+                lambda tag: f"{EXIFTOOL_DIRECTORY_CMD}{tag}",
+                EXIFTOOL_TAGS,
+            )
+        )
 
-            for file_metadata in all_files_metadata:
-                files_metadata.append(file_metadata)
+    for dir in file_paths_to_process:
+        exiftool_organize_command: str = (
+            f"exiftool {params} {output_path} {tag_command} {dir}"
+        )
 
-        except Exception as e:
-            exiftool_read_error(file_path, e)
+        exiftool_result = subprocess.run(
+            exiftool_organize_command.split(" "), capture_output=True, text=True
+        )
 
-        return files_metadata
+        if exiftool_result.stderr:
+            exiftool_organize_error(dir, exiftool_result)

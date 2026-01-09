@@ -92,7 +92,9 @@ def prune_media_directories(
 
     for dir_path in directories_to_check:
         media_hashes = build_media_hashes(dir_path, media_hashes)
+
     print("media_hashes", media_hashes.values())
+
     pruned_paths = prune_media_paths(media_hashes.values(), dir_to_keep)
 
     # ToDo - instead of writing a log file in prune_media_paths, use this return

@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
+import os
 import sys
-from datetime import datetime
 
-from constants import CREATE_DATE_METADATA_TAGS
 from utils.hash_helpers import build_media_hashes
-from utils.organizer_helpers import walk_and_create_date_tags
+from utils.organizer_helpers import rename_and_move_media_files
 from utils.pruning import prune_media_directories
 
 
@@ -45,27 +44,14 @@ def main():
                 metadata.write("\n")
 
     if tool_name == "organize":
-        with open("metadata.txt", "w") as file:
-            files_metadata = walk_and_create_date_tags(directory_to_check[0])
+        cwd = os.getcwd()
+        target_directory = os.path.join(cwd, "tmp")
+        test_input = input(
+            "Create printout of changes before actually moving files? True/False "
+        )
+        test = test_input == "True"
 
-            for metadata in files_metadata:
-                for tag in CREATE_DATE_METADATA_TAGS:
-                    if tag in metadata:
-                        file.write(
-                            f"{15*'*'}-File: {metadata['SourceFile']}-{15*'*'}\n"
-                        )
-                        file.write(f"{tag}: {metadata[tag]}\n")
-                        file.write(
-                            f"{datetime.strptime(metadata[tag], '%Y:%m:%d %H:%M:%S').year}\n"
-                        )
-                        print(f"Year - {metadata[tag].split(' ')[0].split(':')[0]}")
-                        print(f"Month - {metadata[tag].split(' ')[0].split(':')[1]}")
-                        print(f"Day - {metadata[tag].split(' ')[0].split(':')[2]}")
-                        print(f"Hour - {metadata[tag].split(' ')[1].split(':')[0]}")
-                        print(f"Minute - {metadata[tag].split(' ')[1].split(':')[1]}")
-                        print(f"Second - {metadata[tag].split(' ')[1].split(':')[2]}")
-
-                file.write("\n")
+        rename_and_move_media_files(target_directory, directory_to_check, test)
 
 
 if __name__ == "__main__":

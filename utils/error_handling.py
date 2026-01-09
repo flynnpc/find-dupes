@@ -1,5 +1,6 @@
 from datetime import datetime
 from io import TextIOWrapper
+from subprocess import CompletedProcess
 
 
 def error_log_timestamp(write_file: TextIOWrapper):
@@ -48,16 +49,16 @@ def directory_to_keep_out_of_range(directories: list[str], dir_to_keep_index: in
         )
 
 
-def metadata_read_file_is_not_file(file_path: str):
+def path_is_not_file(file_path: str):
     with open("error_log.txt", "a") as log_file:
         error_log_timestamp(log_file)
-        log_file.write(
-            f"{file_path} is not a file and cannot have metadata read from it.\n"
-        )
+        log_file.write(f"{file_path} is not a file.\n")
 
 
-def exiftool_read_error(file_path: str, error: Exception):
+def exiftool_organize_error(dir: str, result: CompletedProcess[str]):
     with open("error_log.txt", "a") as log_file:
         error_log_timestamp(log_file)
-        log_file.write(f"Error reading metadata from {file_path}:\n")
-        log_file.write(f"Error: {error}\n")
+        log_file.write(result.stdout)
+        log_file.write("\n----------errors-----------\n\n")
+        log_file.write(f"Errors while organizing the following directory: {dir}:\n")
+        log_file.write(result.stderr)

@@ -20,9 +20,3 @@ MEDIA_FILE_TYPES: list[str] = (
     ".flv",
     ".m4v",
 )
-
-# List of Metadata tags used to extract CreateDate from media files
-CREATE_DATE_METADATA_TAGS: list[str] = {
-    "QuickTime:CreateDate",
-    "EXIF:DateTimeOriginal",
-}
