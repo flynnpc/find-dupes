@@ -1,3 +1,4 @@
+# list of all suported media file types for creating hash library
 MEDIA_FILE_TYPES: list[str] = (
     ".jpg",
     ".jpeg",
