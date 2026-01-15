@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+# /Users/paulflynn/Dev/test_data/source
 
 import os
 import sys
 
+from utils.get_file_paths_in_directories import get_file_paths_in_directories
 from utils.hash_helpers import build_media_hashes
 from utils.organizer_helpers import rename_and_move_media_files
-from utils.pruning import prune_media_directories
+from utils.pruning import prune_media_paths
 
 
 def main():
@@ -15,33 +16,34 @@ def main():
         "Enter the directory path/s to check for duplicates. Separate by a comma: "
     ).split(",")
 
+    files_to_process = get_file_paths_in_directories(directory_to_check)
+
+    media_hashes = build_media_hashes(files_to_process)
+
     # Accepted arguments for tools ['find_dupes', 'prune_media', 'organize']
     tool_name = sys.argv[1]
 
     if tool_name == "find_dupes":
-        image_hashes = build_media_hashes(directory_to_check)
 
-        with open("image_hashes.txt", "w") as metadata:
-            for hash_value, path in image_hashes.items():
-                if len(path) > 1:
-                    metadata.write(f"{hash_value}:\n")
-                    for image_path in path:
-                        metadata.write(f"  {image_path}\n")
-                    metadata.write("\n")
+        with open("image_hashes.txt", "w") as hash_text:
+            # for hash_value, path in image_hashes.items():
+            for hash in media_hashes:
+                if len(media_hashes[hash]) > 1:
+                    hash_text.write(f"{hash}:\n")
+                    for image_path in media_hashes[hash]:
+                        hash_text.write(f"  {image_path}\n")
+                    hash_text.write("\n")
 
     if tool_name == "prune_media":
         # ToDo - This is hard coded to a 0, but will be the input from a dropdowns of
         # directories once a GUI is implemented.
-        dir_to_keep_index: int = 0
 
-        pruned_paths = prune_media_directories(directory_to_check, dir_to_keep_index)
+        # dir_to_keep: str = directory_to_check[0]
+        # pruned_paths = prune_media_paths(media_hashes, dir_to_keep)
 
-        if pruned_paths is None:
+        pruned_paths = prune_media_paths(media_hashes)
+        if not pruned_paths:
             return
-        with open("remaining_file_paths.txt", "w") as metadata:
-            for hash_value, path in pruned_paths.items():
-                metadata.write(f"{hash_value}: {path}\n")
-                metadata.write("\n")
 
     if tool_name == "organize":
         cwd = os.getcwd()
