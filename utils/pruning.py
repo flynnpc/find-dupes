@@ -9,10 +9,6 @@ from utils.error_handling import (
 )
 
 
-def check_for_existing_hash(pruned_paths: dict[str, str], hash: str) -> str | bool:
-    return pruned_paths.get(hash, False)
-
-
 def prune_media_paths(
     media_hashes: dict[str, list[str]], dir_to_keep: str = ""
 ) -> dict[str, str]:
@@ -35,7 +31,7 @@ def prune_media_paths(
         for index, path in enumerate(media_hashes[hash], start=1):
 
             root_path = os.path.split(path)[0]
-            if dir_to_keep == root_path:
+            if dir_to_keep and dir_to_keep == root_path:
                 pruned_paths[hash] = path
                 continue
 
